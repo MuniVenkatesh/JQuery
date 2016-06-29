@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <title>JQuery</title>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    <style>
+    body
+    {
+       font-weight: bold;
+    }
+    .col-lg-3
+    {
+        margin-top: 0px;
+        margin-bottom: 1px;
+    }
+    .add
+    {
+        margin-top: 15px;
+    }
+    .axis
+    {
+    	  font: 15px sans-serif;
+    }
+    .axis path,
+    .axis line
+    {
+    	  fill: none;
+    	  stroke: #000;
+    }
+    .legend
+    {
+        font-size: 15px;
+        font-style: italic;
+        font-weight: bolder;
+    }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-6">
+          <div class="col-lg-3">
+            <center>Year</center>
+          </div>
+          <div class="col-lg-3">
+            Above $500
+          </div>
+          <div class="col-lg-3">
+            Below $500
+          </div>
+          <div class="col-lg-3">
+            Add/Delete
+          </div>
+          <div id="elements">
+            <form role="form">
+              <script id="jsonForm" type="text/jsonForm">
+              <div class="col-lg-3 form-group">
+                <input type="text" class="form-control input-sm" value="{{year}}" readonly="readonly">
+              </div>
+              <div class="col-lg-3 form-group">
+                <input type="text" class="form-control input-sm" value="{{above}}" readonly="readonly">
+              </div>
+              <div class="col-lg-3 form-group">
+                <input type="text" class="form-control input-sm" value="{{below}}" readonly="readonly">
+              </div>
+              <div class="col-lg-3 form-group">
+                <button type="submit" class="btn btn-sm btn-warning form-control" value="{{year}}">Delete</button>
+              </div>
+              </script>
+            </form>
+          </div> <!-- end of div for json data -->
+
+          <form id="addRow">
+            <script id="addData" type="text/addForm">
+            <div class="add col-lg-3 form-group">
+              <input type="number" id="A" class="form-control input-sm">
+            </div>
+            <div class="add col-lg-3 form-group">
+              <input type="number" id="B" class="form-control input-sm">
+            </div>
+            <div class="add col-lg-3 form-group">
+              <input type="number" id="C" class="form-control input-sm">
+            </div>
+            <div class="add col-lg-3 form-group">
+              <button type="submit" class="btn btn-sm btn-primary form-control" value="add">Add</button>
+            </div>
+            </script>
+          </form>
+
+        </div> <!-- end of div for table of json content add/delete-->
+        <div class="col-sm-6" id="chart">
+            <!-- div for stacked bar chart-->
+        </div>
+      </div>
+    </div><!--end of container-->
+  <script type="text/javascript">
+    var jsonData=[];
+    var promiseObj={};
+
+    $.getJSON("dataForStackedBar.JSON",function(data){
+        jsonData=data;
+    }).promise(promiseObj);
+
+    var formData=$("#jsonForm").html();
+    var muni=function(){
+      var str="";
+
+      $.each(jsonData,function(i,obj){
+        var x=formData
+              .replace(/{{year}}/g, obj.year)
+              .replace(/{{above}}/, obj.above)
+              .replace(/{{below}}/, obj.below);
+        str=str+x;
+      });
+      $("#elements").empty()
+                    .append(str)
+                    .append($("#addData").html());
+      $("button").on("click",function(){
+        var t=$(this);
+        if(t.prop("value")=="add")
+        {
+            var addData={year:document.getElementById("A").value,
+                         above:document.getElementById("B").value,
+                         below:document.getElementById("C").value
+                        };
+            if((addData.year=="")||(addData.above=="")||(addData.below==""))
+            {
+                alert("Fill all fields with numeric values ");
+            }
+            else
+            {
+                var found=jsonData.filter(function(e){
+                    return e.year==addData.year;
+                });
+                if(found[0]){
+                  alert("Year "+addData.year+" is already present");
+                }
+                else
+                {
+                  jsonData.push(addData);
+                  jsonData.sort(function(a,b){
+                    if(a.year>b.year)
+                      return 1;
+                    else
+                      return -1;
+                  });
+                }
+            }
+        }
+        else
+        {
+            jsonData=jsonData.filter(function(e){
+                return e.year !=t.prop("value");
+            });
+        }
+        muni();
+      });
+      $("#chart").empty();
+      $.getScript("scriptForStackedBar.js",function(){
+        barChart(jsonData);
+      })
+    }
+    promiseObj.done(function(){
+        muni();
+    });
+  </script>
+  </body>
+</html>

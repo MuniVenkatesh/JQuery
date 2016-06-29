@@ -1,0 +1,45 @@
+<html>
+<head>
+  <title>JQuery</title>
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+    <div class="col-12">
+      <div class="tabbable">
+        <ul class="nav nav-tabs">
+          <li class="active"><a href="#first" data-toggle="tab">Stacked Bar</a></li>
+          <li><a href="#second" data-toggle="tab">Multi Series</a></li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane active" id="first">
+
+          </div>
+          <div class="tab-pane" id="second">
+
+          </div>
+      </div>
+    </div>
+  </div>
+  </div>
+</div>
+<script type="text/javascript">
+$('.nav-tabs a').click(function (e) {
+     e.preventDefault();
+     var tab=$($(this).attr('href')).index();
+     if(tab==0){
+       $("#second").empty();
+       $("#first").load("stackedbar.html");
+     }
+     else if(tab==1){
+       $("#first").empty();
+       $("#second").load("multiline.html");
+     }
+});
+ $("#first").load("stackedbar.html");
+</script>
+</body>
+</html>
